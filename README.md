@@ -1,20 +1,49 @@
-# audit.py — Self-Contained Verification Tool
+# Audit Tool
 
-Audits student mini-projects against a 7-point rubric. Produces a detailed Markdown + CSV report with a binary `ACCEPTED` / `REJECTED` verdict per project.
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 
-## Requirements
+A self-contained verification tool that audits student mini-projects against a comprehensive 7-point rubric. Produces detailed Markdown and CSV reports with binary ACCEPTED/REJECTED verdicts per project.
+
+## Table of Contents
+
+- [Features](#features)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Acceptance Criteria](#acceptance-criteria)
+- [Report Interpretation](#report-interpretation)
+- [Testing](#testing)
+- [Windows Notes](#windows-notes)
+- [Contributing](#contributing)
+- [License](#license)
+
+## Features
+
+- **Comprehensive Auditing**: Evaluates projects across 7 critical checks for self-containment and correctness
+- **Multi-Language Support**: Handles Python and Node.js projects
+- **Detailed Reporting**: Generates both human-readable Markdown and machine-readable CSV reports
+- **Incremental Processing**: Processes projects one by one, saving progress even if interrupted
+- **Cross-Platform**: Works on Windows, macOS, and Linux
+- **Test Fixtures**: Includes synthetic test cases covering edge cases
+
+## Installation
+
+### Requirements
 
 - Python 3.11+ (uses `tomllib`)
-- `colorama` (see `requirements.txt`)
-- Node.js + npm on PATH (only needed for Node.js project Check 5/6)
+- `colorama` for colored output
+- Node.js + npm on PATH (required only for Node.js project checks 5/6)
 
-```
-py -m pip install -r requirements.txt
+### Setup
+
+```bash
+git clone https://github.com/MrEmoji27/audit-tool.git
+cd audit-tool
+pip install -r requirements.txt
 ```
 
 ## Usage
 
-```
+```bash
 python audit.py <root_dir>
 python audit.py <root_dir> --single <project_name>
 python audit.py <root_dir> --resume
@@ -22,57 +51,75 @@ python audit.py <root_dir> --only-static
 python audit.py <root_dir> --report-dir <where_to_write>
 ```
 
-- `<root_dir>` must contain one subfolder per student team project.
-- `--single` audits only the named subfolder.
-- `--resume` skips projects already in the existing `audit_report.csv`.
-- `--only-static` skips Check 5 (install) and Check 6 (runs).
+- `<root_dir>`: Directory containing one subfolder per student team project
+- `--single`: Audit only the specified project subfolder
+- `--resume`: Skip projects already present in existing `audit_report.csv`
+- `--only-static`: Skip dynamic checks (install and runtime) for faster static analysis
+- `--report-dir`: Custom directory for output reports (defaults to current directory)
 
-## The 7 Checks
+## Acceptance Criteria
 
-| # | Check | What it means |
-|---|---|---|
-| 1 | Absolute paths | No `C:\...`, `/Users/...`, `/home/...`, `/mnt/...`, `/root/...` in code/config. Documentation (`.md`, `.txt`, `.rst`) is NOT scanned — mentioning a path in a README is fine. |
-| 2 | External refs | No string literal in code resolves outside the project root. A `../config/settings.json` inside `src/` that points back into the project is OK; `../../../Users/evil/...` is not. |
-| 3 | Manifest exists | Python: `requirements.txt` or `pyproject.toml` (required iff third-party imports exist; stdlib-only scripts may omit it). Node: `package.json` with a populated `dependencies` or `devDependencies`. |
-| 4 | Imports declared | Every third-party import in code is declared in the manifest. Stdlib / built-ins / local modules are filtered out. Common Python alias gaps (`PIL`→`pillow`, `cv2`→`opencv-python`, `yaml`→`pyyaml`, etc.) are handled. |
-| 5 | Install succeeds | In a clean copy: `python -m venv .venv && pip install -r requirements.txt` (Python) or `npm install` (Node). No cached `node_modules` / `.venv` from the student's machine. |
-| 6 | Runs without import errors | Entry point starts without `ModuleNotFoundError`, `ImportError`, `SyntaxError` (Python) or `Cannot find module`, `MODULE_NOT_FOUND`, `SyntaxError` (Node). Runtime crashes later (missing config files, logic errors) are OK — we're verifying self-containment, not bug-freeness. |
-| 7 | README | `README.md`, `README.txt`, `README`, or `README.rst` at project root. Contents don't matter. |
+Projects are evaluated against 7 mandatory checks. A project is **ACCEPTED** only if it passes ALL checks. Any single failure results in **REJECTION**.
 
-A project is **ACCEPTED** only if all 7 checks pass. Any failure → **REJECTED**.
+| # | Check | Description | Accept Criteria | Reject Reason |
+|---|---|---|---|---|
+| 1 | Absolute Paths | No hardcoded absolute paths in code/config | No `C:\...`, `/Users/...`, `/home/...`, etc. | Hardcoded system paths found |
+| 2 | External References | No references outside project root | All file references stay within project boundaries | References escape project directory |
+| 3 | Manifest Exists | Proper dependency declaration file | `requirements.txt`/`pyproject.toml` (Python) or `package.json` (Node) | Missing or empty manifest |
+| 4 | Imports Declared | All third-party imports declared | Every import matches manifest dependencies | Undeclared dependencies used |
+| 5 | Install Succeeds | Clean installation works | `pip install` or `npm install` completes without errors | Installation failures |
+| 6 | Runs Without Errors | Entry point starts successfully | No import/module errors on startup | Runtime import failures |
+| 7 | README Present | Documentation exists | `README.md`, `README.txt`, etc. at root | No README file found |
 
-## How to Interpret the Report
+### How We Accept and Reject
 
-- `audit_report.md` — full details per project, including every check result, specific findings (file + line), and reproduce commands for rejections.
-- `audit_report.csv` — one row per project, sortable in Excel. Columns for each of the 7 checks (`PASS` / `FAIL` / `N/A`) plus a `failure_summary` text column.
-- Both reports are written **incrementally** after each project — a crash on project 19 does not lose projects 1–18.
+- **ACCEPTED**: All 7 checks pass. The project is self-contained, properly configured, and ready for evaluation.
+- **REJECTED**: One or more checks fail. The report provides specific failure details, including file locations and suggested fixes.
+- **Verdict Logic**: Strict AND condition - every check must pass. No partial credit or weighted scoring.
+- **Appeal Process**: Review the detailed `audit_report.md` for specific findings. Fix issues and re-submit for re-audit.
 
-## Windows Notes
+## Report Interpretation
 
-- Copies projects to `%TEMP%\audit_<name>\` before running dynamic checks — originals are never modified.
-- Works around Windows file-lock issues on cleanup with retry-rmtree.
-- Uses `CREATE_NO_WINDOW` flag so subprocess calls don't spawn console popups.
-- Path-length limit: projects whose path exceeds ~240 chars are REJECTED (Windows 260-char MAX_PATH).
+- **`audit_report.md`**: Detailed per-project analysis with check results, specific findings (file + line numbers), and reproduction commands
+- **`audit_report.csv`**: Tabular format with one row per project, sortable columns for each check (`PASS`/`FAIL`/`N/A`), and failure summaries
+- **Incremental Writing**: Reports update after each project - interruptions don't lose progress
 
 ## Testing
 
-`test_fixtures/` contains 8 synthetic projects covering the key edge cases:
+The `test_fixtures/` directory contains 8 synthetic projects covering key scenarios:
 
-| # | Fixture | Expected verdict | What it tests |
-|---|---|---|---|
-| 1 | `py_clean_stdlib` | ACCEPTED | stdlib-only Python, no manifest required |
-| 2 | `py_clean_with_deps` | ACCEPTED | Happy path, `requests` declared and imported |
-| 3 | `py_abs_path` | REJECTED | Hardcoded `C:\...` literal → Check 1 |
-| 4 | `py_undeclared` | REJECTED | Imports `flask`, declares `requests` → Check 4 |
-| 5 | `py_relative_safe` | ACCEPTED | `../config` from `src/` stays in project → Check 2 |
-| 6 | `py_external_ref` | REJECTED | `../../../Users/evil/...` escapes → Check 2 |
-| 7 | `node_scoped_ok` | ACCEPTED | Scoped package `@babel/core` handled correctly |
-| 8 | `node_undeclared` | REJECTED | Imports `lodash`, declares `express` → Check 4 |
+| Fixture | Expected | Tests |
+|---|---|---|
+| `py_clean_stdlib` | ACCEPTED | Stdlib-only Python, no manifest needed |
+| `py_clean_with_deps` | ACCEPTED | Proper dependency declaration and usage |
+| `py_abs_path` | REJECTED | Hardcoded absolute paths (Check 1) |
+| `py_undeclared` | REJECTED | Undeclared imports (Check 4) |
+| `py_relative_safe` | ACCEPTED | Safe relative references within project |
+| `py_external_ref` | REJECTED | References outside project root (Check 2) |
+| `node_scoped_ok` | ACCEPTED | Scoped npm packages handled correctly |
+| `node_undeclared` | REJECTED | Undeclared Node.js dependencies (Check 4) |
 
-Run:
+Run tests:
 
-```
+```bash
 python audit.py test_fixtures
 ```
 
 Expected: 4 ACCEPTED, 4 REJECTED.
+
+## Windows Notes
+
+- Projects copied to `%TEMP%\audit_<name>\` for dynamic checks - originals unmodified
+- Handles Windows file locking with retry mechanisms
+- Uses `CREATE_NO_WINDOW` to prevent console popups
+- Path length limit: Projects exceeding ~240 characters rejected (Windows MAX_PATH)
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature-name`
+3. Make your changes and add tests
+4. Run tests: `python audit.py test_fixtures`
+5. Commit changes: `git commit -am 'Add feature'`
+6. Push to branch: `git push origin feature-name`
+7. Submit a pull request
