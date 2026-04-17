@@ -1,0 +1,23 @@
+project_name,stack,verdict,check1_abs_paths,check2_external_refs,check3_manifest,check4_imports_declared,check5_install,check6_runs,check7_readme,check7b_readme_quality,failure_summary
+C1-SMART COMMENT CLASSIFICATION,both,ACCEPTED,PASS,PASS,PASS,PASS,N/A,N/A,PASS,PASS,
+C10-AI DRIVEN PRODUCT RECOMMENDATION SYSTEM,both,ACCEPTED,PASS,PASS,PASS,PASS,N/A,N/A,PASS,PASS,
+C11,empty,SKIPPED,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,Empty folder (no files)
+C12,python,REJECTED,PASS,PASS,PASS,PASS,N/A,N/A,PASS,FAIL,"7b_readme_quality: README tells user to 'git clone' from https://github.com/yourusername/FarmerAIAdvisorySystem.git — useless for a hard-drive submission; GitHub-style README (6 signals: badges, contributing/license sections, fork/PR language)"
+C13-DEVELOPMENT OF STUDENT INFORMATION PLATFORM,python,ACCEPTED,PASS,PASS,PASS,PASS,N/A,N/A,PASS,PASS,
+C14-SALES FORECASTING SYSTEM,python,ACCEPTED,PASS,PASS,PASS,PASS,N/A,N/A,PASS,PASS,
+C15-EDUBOT,python,ACCEPTED,PASS,PASS,PASS,PASS,N/A,N/A,PASS,PASS,
+C16,empty,SKIPPED,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,Empty folder (no files)
+C17-EAILS,python,ACCEPTED,PASS,PASS,PASS,PASS,N/A,N/A,PASS,PASS,
+C18-SIGN LANGUAGE TO TEXT,python,ACCEPTED,PASS,PASS,PASS,N/A,N/A,N/A,PASS,PASS,
+C19-SMART CAMPUS NAVIGATION,flutter,ACCEPTED,PASS,PASS,PASS,N/A,N/A,N/A,PASS,PASS,
+C2,empty,SKIPPED,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,Empty folder (no files)
+C20-E-GOVERNANCE,python,ACCEPTED,PASS,PASS,PASS,PASS,N/A,N/A,PASS,PASS,
+C21-RESUME ANALYZER,both,ACCEPTED,PASS,PASS,PASS,PASS,N/A,N/A,PASS,PASS,
+C22-LIVE SCORE X,both,ACCEPTED,PASS,PASS,PASS,PASS,N/A,N/A,PASS,PASS,
+C3-PNEUMONIA DETECTION,python,ACCEPTED,PASS,PASS,PASS,PASS,N/A,N/A,PASS,PASS,
+C4-STUDENT ACADEMIC PERFORMANCE VISUALIZATION SYSTEM,python,ACCEPTED,PASS,PASS,PASS,PASS,N/A,N/A,PASS,PASS,
+C5,empty,SKIPPED,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,Empty folder (no files)
+C6-REALTIME ATTENDANCE WITH FACE RECOGNITION,python,REJECTED,PASS,PASS,FAIL,FAIL,N/A,N/A,PASS,PASS,"3_manifest: Third-party imports detected (cv2, flask, insightface, numpy, sklearn, ultralytics) but no requirements.txt or pyproject.toml; 4_imports_declared: Undeclared imports: cv2, flask, insightface, numpy, sklearn, ultralytics"
+C7,empty,SKIPPED,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,Empty folder (no files)
+C8-Intelligent College Recommendation System,both,ACCEPTED,PASS,PASS,PASS,PASS,N/A,N/A,PASS,PASS,
+C9-VOICE BASED VIRTUAL ASSISTANT,python,ACCEPTED,PASS,PASS,PASS,PASS,N/A,N/A,PASS,PASS,
