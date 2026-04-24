@@ -1,0 +1,2 @@
+project_name,stack,verdict,score,check1_abs_paths,check2_external_refs,check3_manifest,check4_imports_declared,check5_install,check6_runs,check7_readme,check7b_readme_quality,check8_tests,failure_summary
+py_with_tests,python,ACCEPTED,100,PASS,PASS,PASS,N/A,N/A,N/A,PASS,PASS,N/A,
